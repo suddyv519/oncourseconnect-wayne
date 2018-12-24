@@ -77,7 +77,8 @@ class HomeScreen extends Component {
         });
     };
 
-    getGrades = (schoolId, yearId) => {
+    getGrades = (classId, schoolId, yearId) => {
+        // TODO: change this so it only gets grades for a specific class
         console.log("getting grades...");
         let url = `https://www.oncourseconnect.com/api/classroom/student/report_cards?schoolId=${schoolId}&schoolYearId=${yearId}&studentId=${this.state.username}`;
         fetch(url, {
