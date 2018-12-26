@@ -12,11 +12,11 @@ import {
 } from 'react-native';
 import {WebBrowser} from 'expo';
 
-import {MonoText} from '../components/StyledText';
+import {MonoText} from './StyledText';
 
-class HomeScreen extends Component {
+class MainScreen extends Component {
     static navigationOptions = {
-        header: null,
+        header: On,
     };
 
     state = {
@@ -257,4 +257,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HomeScreen;
+export default MainScreen;
