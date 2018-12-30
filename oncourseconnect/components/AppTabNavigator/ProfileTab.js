@@ -12,8 +12,16 @@ import {
 } from 'react-native';
 import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
+import {Icon} from "native-base";
 
 class ProfileTab extends Component {
+
+    static navigationOptions = {
+        title: 'Profile',
+        tabBarIcon: ({ tintColor }) => (
+            <Icon name="person" style={{color: tintColor}}/>
+        )
+    };
 
     render() {
         return (

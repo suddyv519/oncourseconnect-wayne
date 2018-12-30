@@ -10,9 +10,18 @@ import {
     Button,
     TextInput
 } from 'react-native';
+import { Icon } from 'native-base';
 import {WebBrowser} from 'expo';
 
 class GradesTab extends Component {
+
+    static navigationOptions = {
+        title: 'Grades',
+        tabBarIcon: ({ tintColor }) => (
+            <Icon name="school" style={{color: tintColor}}/>
+        )
+    };
+
 
     state = {
         username: '',

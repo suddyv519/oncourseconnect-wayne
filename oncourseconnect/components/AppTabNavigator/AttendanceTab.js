@@ -12,8 +12,16 @@ import {
 } from 'react-native';
 import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
+import {Icon} from "native-base";
 
 class AttendanceTab extends Component {
+
+    static navigationOptions = {
+        title: 'Attendance',
+        tabBarIcon: ({ tintColor }) => (
+            <Icon name="checkbox" style={{color: tintColor}}/>
+        )
+    };
 
     render() {
         return (

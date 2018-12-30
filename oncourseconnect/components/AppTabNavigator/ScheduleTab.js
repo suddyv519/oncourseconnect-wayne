@@ -12,8 +12,16 @@ import {
 } from 'react-native';
 import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
+import {Icon} from "native-base";
 
 class ScheduleTab extends Component {
+
+    static navigationOptions = {
+        title: 'Schedule',
+        tabBarIcon: ({ tintColor }) => (
+            <Icon name="list" style={{color: tintColor}}/>
+        )
+    };
 
     render() {
         return (

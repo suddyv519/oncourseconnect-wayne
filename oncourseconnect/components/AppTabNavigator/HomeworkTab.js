@@ -12,8 +12,16 @@ import {
 } from 'react-native';
 import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
+import {Icon} from "native-base";
 
 class HomeworkTab extends Component {
+
+    static navigationOptions = {
+        title: 'Homework',
+        tabBarIcon: ({ tintColor }) => (
+            <Icon name="book" style={{color: tintColor}}/>
+        )
+    };
 
     render() {
         return (
