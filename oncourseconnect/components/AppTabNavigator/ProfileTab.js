@@ -8,11 +8,19 @@ import {
     TouchableOpacity,
     View,
     Button,
-    TextInput
+    TextInput,
+    Alert
 } from 'react-native';
 import {WebBrowser} from 'expo';
-import TabBarIcon from "../TabBarIcon";
-import {Icon} from "native-base";
+import {
+    Icon,
+    Container,
+    Header,
+    Content,
+    Form,
+    Item,
+    Input,
+} from "native-base";
 
 class ProfileTab extends Component {
 
@@ -23,12 +31,86 @@ class ProfileTab extends Component {
         )
     };
 
+    state = {
+        username: '',
+        password: '',
+        signedIn: false
+    };
+
+    login = () => {
+        if (this.state.username === '') {
+            Alert.alert('Error', 'Username cannot be blank', [{text: 'OK'}]);
+            return;
+        } else if (this.state.password === '') {
+            Alert.alert('Error', 'Password cannot be blank', [{text: 'OK'}]);
+            return;
+        }
+        console.log("Attempting to sign in...");
+        console.log(this.state);
+        let url = `https://www.oncourseconnect.com/sso/login?id=wayne&userType=S&username=${this.state.username}&password=${this.state.password}`;
+
+        fetch(url, {
+            method: 'POST',
+            credentials: 'include',
+        }).then((response) => {
+            if (response.url === 'https://www.oncourseconnect.com/') {
+                this.setState({signedIn: !this.state.signedIn});
+                console.log("Sign in successful");
+            } else {
+                // console.log(response.text());
+                console.log("Sign in failed");
+                Alert.alert('Sign in failed', 'Incorrect username/password', [{text: 'OK'}]);
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    };
+
+    logout = () => {
+        console.log("Attempting to sign out...");
+        let url = 'https://www.oncourseconnect.com/account/logout';
+        fetch(url, {
+            credentials: 'include'
+        }).then(() => {
+            this.setState({
+                username: '',
+                password: '',
+                signedIn: !this.state.signedIn
+            });
+            console.log("Sign out successful")
+        }).catch((error) => {
+            console.error(error);
+        });
+    };
+
     render() {
-        return (
-            <View style={styles.container}>
-                <Text>Profile Tab</Text>
-            </View>
-        );
+        if (!this.state.signedIn) {
+            return (
+                <Container>
+                    <Content>
+                        <Form>
+                            <Item>
+                                <Input placeholder="Username" name="username" onChangeText={(username) => this.setState({username: username})}/>
+                            </Item>
+                            <Item>
+                                <Input placeholder="Password" name="password" secureTextEntry={true} onChangeText={(password) => this.setState({password: password})}/>
+                            </Item>
+                            <Button title="Sign In" onPress={this.login}/>
+                        </Form>
+                    </Content>
+                </Container>
+            );
+        } else {
+            return (
+                <Container>
+                    <Content>
+                        <Form>
+                            <Button title="Sign Out" onPress={this.logout}/>
+                        </Form>
+                    </Content>
+                </Container>
+            );
+        }
     }
 
     _maybeRenderDevelopmentModeWarning() {

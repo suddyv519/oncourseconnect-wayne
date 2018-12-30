@@ -32,41 +32,6 @@ class GradesTab extends Component {
         loggedIn: false
     };
 
-    login = () => {
-        console.log("attempting login...");
-
-        let url = `https://www.oncourseconnect.com/sso/login?id=wayne&userType=S&username=${this.state.username}&password=${this.state.password}`;
-
-        fetch(url, {
-            method: 'POST',
-            credentials: 'include',
-        })
-            .then((res) => {
-                let response = res.text();
-                console.log(response);
-                //console.log(response.indexOf('incorrect') === -1 ? "login success" : "login failed"); // return true if login successful
-                this.setState({loggedIn: true});
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    };
-
-    logout = () => {
-        console.log("attempting to log out...");
-        let url = 'https://www.oncourseconnect.com/account/logout';
-        fetch(url, {
-            credentials: 'include'
-        })
-            .then((response) => {
-                console.log(response);
-                this.setState({loggedIn: false});
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    };
-
     getInfo = () => {
         console.log("getting school and year id info...");
         let url = `https://www.oncourseconnect.com/api/classroom/student/get_student_school_years?studentId=${this.state.username}`;

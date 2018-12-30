@@ -20,6 +20,7 @@ import ProfileTab from "./AppTabNavigator/ProfileTab";
 import TabBarIcon from "./TabBarIcon";
 
 class MainScreen extends Component {
+
     static navigationOptions = {
         title: 'OnCourse Connect'
     };
