@@ -13,12 +13,12 @@ import {
 import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
 
-class HomeworkTab extends Component {
+class AttendanceTab extends Component {
 
     render() {
         return (
             <View style={styles.container}>
-                <Text>Homework Tab</Text>
+                <Text>Attendance Tab</Text>
             </View>
         );
     }
@@ -118,6 +118,6 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HomeworkTab;
+export default AttendanceTab;
 
 
