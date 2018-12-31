@@ -15,6 +15,20 @@ import {WebBrowser} from 'expo';
 
 class GradesTab extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            username: '12248459',
+            schoolId: '',
+            courses: [],
+            periodId: '',
+            yearId: '',
+            loggedIn: true,
+            finishedLoading: false
+        };
+        this.getSchoolInfo();
+    }
+
     static navigationOptions = {
         title: 'Grades',
         tabBarIcon: ({ tintColor }) => (
@@ -23,28 +37,57 @@ class GradesTab extends Component {
     };
 
 
-    state = {
-        username: '',
-        password: '',
-        schoolIds: [],
-        courseIds: [],
-        yearIds: [],
-        loggedIn: false
-    };
-
-    getInfo = () => {
-        console.log("getting school and year id info...");
+    getSchoolInfo = () => {
+        if (!this.state.loggedIn) {
+            return;
+        }
+        console.log("Getting school and year id info...");
         let url = `https://www.oncourseconnect.com/api/classroom/student/get_student_school_years?studentId=${this.state.username}`;
-        // get class and period ids for MP grades with: https://www.oncourseconnect.com/api/classroom/student/report_cards?schoolId=22933&schoolYearId=14828&studentId=12248459
         fetch(url, {
             credentials: 'include'
-        })
-            .then((response) => {
-                console.log(response.body);
-            })
-            .catch((error) => {
-                console.error(error);
+        }).then((response) => {
+            // console.log(response);
+            // console.log(response.url)
+            response.json().then( data => {
+                let info = data[0];
+                this.setState({
+                    schoolId: info.school_id,
+                    yearId: info.gb_school_year_id
+                });
+            }).then( () => this.getClassInfo());
+        }).catch((error) => {
+            console.error(error);
+        });
+    };
+
+    getClassInfo = () => {
+        console.log("Getting class and period id info...");
+        let url = `https://www.oncourseconnect.com/api/classroom/student/report_cards?schoolId=${this.state.schoolId}&schoolYearId=${this.state.yearId}&studentId=${this.state.username}`;
+        fetch(url, {
+            credentials: 'include'
+        }).then((response) => {
+            response.json().then( data => {
+                // console.log(data.report_cards[0].rows);
+                let courseInfo = data.report_cards[0].rows;
+                courseInfo.forEach( course => {
+                    let courseObj = {
+                        courseName: course[0].class,
+                        courseId: course[1].gb_class_id,
+                    };
+                    // console.log(courseObj);
+                    let currentCourses = this.state.courses;
+                    currentCourses.push(courseObj);
+                    this.setState({courses: currentCourses});
+                    if (this.state.periodId === '') {
+                        this.setState({periodId: course[1].period_id});
+                    }
+                });
             });
+        }).then(() => {
+            console.log('Done');
+        }).catch((error) => {
+            console.error(error);
+        });
     };
 
     getGrades = (classId, schoolId, yearId) => {
@@ -54,20 +97,18 @@ class GradesTab extends Component {
         let url = `https://www.oncourseconnect.com/api/classroom/student/report_cards?schoolId=${schoolId}&schoolYearId=${yearId}&studentId=${this.state.username}`;
         fetch(url, {
             credentials: 'include'
-        })
-            .then((response) => {
-                console.log(response.body);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        }).then((response) => {
+            console.log(response.body);
+        }).catch((error) => {
+            console.error(error);
+        });
     };
 
 
     render() {
         return (
             <View style={styles.container}>
-                <Text>Grades Tab</Text>
+                <Button primary title="Print state" onPress={() => console.log(this.state)}/>
             </View>
         );
     }

@@ -95,7 +95,7 @@ class ProfileTab extends Component {
                             <Item>
                                 <Input placeholder="Password" name="password" secureTextEntry={true} onChangeText={(password) => this.setState({password: password})}/>
                             </Item>
-                            <Button title="Sign In" onPress={this.login}/>
+                            <Button primary title="Sign In" onPress={this.login}/>
                         </Form>
                     </Content>
                 </Container>
