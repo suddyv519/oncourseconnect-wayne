@@ -6,9 +6,10 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
     Button,
-    TextInput
+    TextInput,
+    FlatList,
+    View
 } from 'react-native';
 import { Icon } from 'native-base';
 import {WebBrowser} from 'expo';
@@ -71,8 +72,8 @@ class GradesTab extends Component {
                 let courseInfo = data.report_cards[0].rows;
                 courseInfo.forEach( course => {
                     let courseObj = {
-                        courseName: course[0].class,
-                        courseId: course[1].gb_class_id,
+                        name: course[0].class,
+                        id: course[1].gb_class_id,
                     };
                     // console.log(courseObj);
                     let currentCourses = this.state.courses;
@@ -84,6 +85,7 @@ class GradesTab extends Component {
                 });
             });
         }).then(() => {
+            this.setState({finishedLoading: true});
             console.log('Done');
         }).catch((error) => {
             console.error(error);
@@ -106,11 +108,24 @@ class GradesTab extends Component {
 
 
     render() {
-        return (
-            <View style={styles.container}>
-                <Button primary title="Print state" onPress={() => console.log(this.state)}/>
-            </View>
-        );
+        if (this.state.finishedLoading) {
+            console.log(this.state);
+            return (
+                <View style={styles.container}>
+                    <FlatList
+                        data={this.state.courses}
+                        renderItem={ ({item}) => <Text onPress={() => console.log(`${item.name} pressed`)} style={styles.listItem}>{item.name}</Text>}
+                        keyExtractor={ (item) => item.id}
+                    />
+                </View>
+            );
+        } else {
+            return (
+                <View>
+                    <Text>Loading...</Text>
+                </View>
+            );
+        }
     }
 }
 
@@ -118,6 +133,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    listItem: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        padding: 5
     },
     developmentModeText: {
         marginBottom: 20,
