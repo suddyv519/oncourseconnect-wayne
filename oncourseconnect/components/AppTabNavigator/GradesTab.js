@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import { createStackNavigator } from 'react-navigation';
 import {
     Image,
     Platform,
@@ -9,10 +10,20 @@ import {
     Button,
     TextInput,
     FlatList,
-    View
 } from 'react-native';
-import { Icon } from 'native-base';
+import {
+    Header,
+    Icon,
+    View,
+    ListItem,
+    Left,
+    Right,
+    Container,
+    Body,
+    Title
+} from 'native-base';
 import {WebBrowser} from 'expo';
+import DetailedGrades from "../DetailedGrades/DetailedGrades";
 
 class GradesTab extends Component {
 
@@ -29,14 +40,6 @@ class GradesTab extends Component {
         };
         this.getSchoolInfo();
     }
-
-    static navigationOptions = {
-        title: 'Grades',
-        tabBarIcon: ({ tintColor }) => (
-            <Icon name="school" style={{color: tintColor}}/>
-        )
-    };
-
 
     getSchoolInfo = () => {
         if (!this.state.loggedIn) {
@@ -55,7 +58,7 @@ class GradesTab extends Component {
                     schoolId: info.school_id,
                     yearId: info.gb_school_year_id
                 });
-            }).then( () => this.getClassInfo());
+            }).then(() => this.getClassInfo());
         }).catch((error) => {
             console.error(error);
         });
@@ -71,9 +74,11 @@ class GradesTab extends Component {
                 // console.log(data.report_cards[0].rows);
                 let courseInfo = data.report_cards[0].rows;
                 courseInfo.forEach( course => {
+                    let teacher = course[0].classStaff.length ? course[0].classStaff[0].staff_name : 'None';
                     let courseObj = {
                         name: course[0].class,
-                        id: course[1].gb_class_id,
+                        teacher: teacher,
+                        id: course[1].gb_class_id
                     };
                     // console.log(courseObj);
                     let currentCourses = this.state.courses;
@@ -83,7 +88,7 @@ class GradesTab extends Component {
                         this.setState({periodId: course[1].period_id});
                     }
                 });
-            });
+            }).catch( error => console.error(error));
         }).then(() => {
             this.setState({finishedLoading: true});
             console.log('Done');
@@ -92,40 +97,57 @@ class GradesTab extends Component {
         });
     };
 
-    getGrades = (classId, schoolId, yearId) => {
-        // TODO: change this so it only gets grades for a specific class
-        // use https://www.oncourseconnect.com/api/classroom/student/get_student_progress_report?classId=5542189&periodId=35177&studentId=12248459
+    getGrades = (classId) => {
         console.log("getting grades...");
-        let url = `https://www.oncourseconnect.com/api/classroom/student/report_cards?schoolId=${schoolId}&schoolYearId=${yearId}&studentId=${this.state.username}`;
+        let url = `https://www.oncourseconnect.com/api/classroom/student/get_student_progress_report?classId=${classId}&periodId=${this.state.periodId}&studentId=${this.state.username}`;
         fetch(url, {
             credentials: 'include'
         }).then((response) => {
-            console.log(response.body);
+            response.json().then( data => {
+                console.log(data);
+            }).catch( error => console.error(error));
         }).catch((error) => {
             console.error(error);
         });
     };
 
+    renderListItem = (course) => {
+        return (
+            <ListItem noIndent>
+                <Left>
+                    <Text style={styles.listItem} onPress={() => this.getGrades(course.id)} >{course.name} - {course.teacher}</Text>
+                </Left>
+                <Right>
+                    <Icon name='arrow-forward'/>
+                </Right>
+            </ListItem>
+        );
+    };
+
 
     render() {
-        if (this.state.finishedLoading) {
-            console.log(this.state);
-            return (
+        return (
+            <Container>
                 <View style={styles.container}>
-                    <FlatList
-                        data={this.state.courses}
-                        renderItem={ ({item}) => <Text onPress={() => console.log(`${item.name} pressed`)} style={styles.listItem}>{item.name}</Text>}
-                        keyExtractor={ (item) => item.id}
-                    />
+                    {/*<Header>*/}
+                        {/*<Body>*/}
+                            {/*<Title>Grades</Title>*/}
+                        {/*</Body>*/}
+                    {/*</Header>*/}
+                    {this.state.finishedLoading ?
+                        <FlatList
+                            data={this.state.courses}
+                            renderItem={({item}) => this.renderListItem(item)}
+                            keyExtractor={(item) => item.id}
+                        />
+                    :
+                        <View>
+                            <Text>Loading...</Text>
+                        </View>
+                    }
                 </View>
-            );
-        } else {
-            return (
-                <View>
-                    <Text>Loading...</Text>
-                </View>
-            );
-        }
+            </Container>
+        );
     }
 }
 

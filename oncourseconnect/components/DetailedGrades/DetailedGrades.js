@@ -1,81 +1,37 @@
-import React, { Component } from 'react';
-import {Platform, StatusBar, StyleSheet, Text, View} from 'react-native';
+import React, {Component} from 'react';
+import {
+    Image,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    Button,
+    TextInput
+} from 'react-native';
+import {WebBrowser} from 'expo';
+import TabBarIcon from "../TabBarIcon";
 import {Icon} from "native-base";
-import {AppLoading, Asset, Font} from 'expo';
-import {createStackNavigator, createAppContainer, createBottomTabNavigator} from 'react-navigation';
 
-import MainScreen from "./components/MainScreen";
-import GradesTab from "./components/AppTabNavigator/GradesTab";
-import HomeworkTab from "./components/AppTabNavigator/HomeworkTab";
-import AttendanceTab from "./components/AppTabNavigator/AttendanceTab";
-import ScheduleTab from "./components/AppTabNavigator/ScheduleTab";
-import ProfileTab from "./components/AppTabNavigator/ProfileTab";
-import DetailedGrades from "./components/DetailedGrades/DetailedGrades";
-
-
-class App extends Component {
-    state = {
-        isLoadingComplete: false,
-    };
+class DetailedGrades extends Component {
 
     static navigationOptions = {
-        title: 'OnCourse Connect'
+        title: 'Attendance',
+        tabBarIcon: ({ tintColor }) => (
+            <Icon name="checkbox" style={{color: tintColor}}/>
+        )
     };
 
     render() {
         return (
-            <AppContainer />
+            <View style={styles.container}>
+                <Text>Detailed Grades</Text>
+            </View>
         );
     }
 
-    _handleLoadingError = error => {
-        // In this case, you might want to report the error to your error
-        // reporting service, for example Sentry
-        console.warn(error);
-    };
-
-    _handleFinishLoading = () => {
-        this.setState({isLoadingComplete: true});
-    };
 }
-
-// const AppStackNavigator = createStackNavigator({
-//     Main: {
-//         screen: MainScreen
-//     }
-// });
-
-const GradesStack = createStackNavigator({
-    Classes: GradesTab,
-    Grades: DetailedGrades
-});
-
-GradesStack.navigationOptions = {
-    title: 'Grades',
-    tabBarIcon: ({ tintColor }) => (
-        <Icon name="school" style={{color: tintColor}}/>
-    )
-};
-
-const AppTabNavigator = createBottomTabNavigator({
-    GradesTab: {
-        screen: GradesStack
-    },
-    HomeworkTab: {
-        screen: HomeworkTab
-    },
-    AttendanceTab: {
-        screen: AttendanceTab
-    },
-    ScheduleTab: {
-        screen: ScheduleTab
-    },
-    ProfileTab: {
-        screen: ProfileTab
-    }
-});
-
-const AppContainer = createAppContainer(AppTabNavigator);
 
 const styles = StyleSheet.create({
     container: {
@@ -170,4 +126,6 @@ const styles = StyleSheet.create({
     },
 });
 
-export default App;
+export default DetailedGrades;
+
+
