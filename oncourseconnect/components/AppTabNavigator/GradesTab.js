@@ -110,7 +110,11 @@ class GradesTab extends Component {
                       }}
             >
                 <Left>
-                    <Text style={styles.listItem} >{course.name} - {course.teacher}</Text>
+                    {course.teacher !== 'None' ?
+                        <Text style={styles.listItem} >{course.name} - {course.teacher}</Text>
+                    :
+                        <Text style={styles.listItem} >{course.name}</Text>
+                    }
                 </Left>
                 <Right>
                     <Icon name='arrow-forward'/>
