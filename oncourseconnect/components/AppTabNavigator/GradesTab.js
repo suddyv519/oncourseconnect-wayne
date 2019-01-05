@@ -5,20 +5,20 @@ import {
     Platform,
     ScrollView,
     StyleSheet,
-    Text,
     TouchableOpacity,
-    Button,
     TextInput,
     FlatList,
 } from 'react-native';
 import {
     Header,
     Icon,
-    View,
     ListItem,
+    Text,
     Left,
     Right,
     Container,
+    Content,
+    View,
     Body,
     Title
 } from 'native-base';
@@ -33,7 +33,7 @@ class GradesTab extends Component {
             username: '12248459',
             schoolId: '',
             courses: [],
-            periodId: '',
+            periodId: '35177',
             yearId: '',
             loggedIn: true,
             finishedLoading: false
@@ -80,9 +80,9 @@ class GradesTab extends Component {
                         teacher: teacher,
                         id: course[1].gb_class_id
                     };
-                    // console.log(courseObj);
                     let currentCourses = this.state.courses;
                     currentCourses.push(courseObj);
+                    // console.log(courseObj);
                     this.setState({courses: currentCourses});
                     if (this.state.periodId === '') {
                         this.setState({periodId: course[1].period_id});
@@ -97,25 +97,20 @@ class GradesTab extends Component {
         });
     };
 
-    getGrades = (classId) => {
-        console.log("getting grades...");
-        let url = `https://www.oncourseconnect.com/api/classroom/student/get_student_progress_report?classId=${classId}&periodId=${this.state.periodId}&studentId=${this.state.username}`;
-        fetch(url, {
-            credentials: 'include'
-        }).then((response) => {
-            response.json().then( data => {
-                console.log(data);
-            }).catch( error => console.error(error));
-        }).catch((error) => {
-            console.error(error);
-        });
-    };
-
     renderListItem = (course) => {
         return (
-            <ListItem noIndent>
+            <ListItem noIndent
+                      onPress={() => {
+                          this.props.navigation.navigate('Grades', {
+                              courseId: course.id,
+                              courseName: course.name,
+                              username: this.state.username,
+                              periodId: this.state.periodId
+                          });
+                      }}
+            >
                 <Left>
-                    <Text style={styles.listItem} onPress={() => this.getGrades(course.id)} >{course.name} - {course.teacher}</Text>
+                    <Text style={styles.listItem} >{course.name} - {course.teacher}</Text>
                 </Left>
                 <Right>
                     <Icon name='arrow-forward'/>
@@ -141,9 +136,7 @@ class GradesTab extends Component {
                             keyExtractor={(item) => item.id}
                         />
                     :
-                        <View>
-                            <Text>Loading...</Text>
-                        </View>
+                        <Text>Loading...</Text>
                     }
                 </View>
             </Container>

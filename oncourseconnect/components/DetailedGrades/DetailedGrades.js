@@ -16,17 +16,46 @@ import {Icon} from "native-base";
 
 class DetailedGrades extends Component {
 
+    constructor(props) {
+        super(props);
+        const { navigation } = this.props;
+        this.state = {
+            courseId: navigation.getParam('courseId', 'none'),
+            courseName: navigation.getParam('courseName', 'Grades'),
+            periodId: navigation.getParam('periodId', 'none'),
+            username: navigation.getParam('username', 'none')
+        };
+        console.log(this.state);
+    }
+
     static navigationOptions = {
-        title: 'Attendance',
+        title: 'View Grades',
         tabBarIcon: ({ tintColor }) => (
             <Icon name="checkbox" style={{color: tintColor}}/>
         )
     };
 
+    getGrades = (mp) => {
+        console.log("getting grades...");
+        let periodId = parseInt(this.state.periodId) + mp - 1;
+        let url = `https://www.oncourseconnect.com/api/classroom/student/get_student_progress_report?classId=${this.state.courseId}&periodId=${periodId}&studentId=${this.state.username}`;
+        fetch(url, {
+            credentials: 'include'
+        }).then((response) => {
+            response.json().then( data => {
+                console.log(data);
+                return data.toString();
+            }).catch( error => console.error(error));
+        }).catch((error) => {
+            console.error(error);
+        });
+    };
+
     render() {
+        this.getGrades(2);
         return (
             <View style={styles.container}>
-                <Text>Detailed Grades</Text>
+                <Text>{this.state.courseName}</Text>
             </View>
         );
     }

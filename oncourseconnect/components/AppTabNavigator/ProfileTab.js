@@ -4,19 +4,21 @@ import {
     Platform,
     ScrollView,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
-    Button,
     TextInput,
     Alert
 } from 'react-native';
 import {WebBrowser} from 'expo';
 import {
     Icon,
+    Button,
+    Body,
+    Title,
     Container,
     Header,
     Content,
+    Text,
     Form,
     Item,
     Input,
@@ -84,10 +86,15 @@ class ProfileTab extends Component {
     };
 
     render() {
-        if (!this.state.signedIn) {
-            return (
-                <Container>
-                    <Content>
+        return (
+            <Container>
+                <Header>
+                    <Body>
+                        <Title>Profile</Title>
+                    </Body>
+                </Header>
+                <Content>
+                    {!this.state.signedIn ?
                         <Form>
                             <Item>
                                 <Input placeholder="Username" name="username" onChangeText={(username) => this.setState({username: username})}/>
@@ -95,22 +102,20 @@ class ProfileTab extends Component {
                             <Item>
                                 <Input placeholder="Password" name="password" secureTextEntry={true} onChangeText={(password) => this.setState({password: password})}/>
                             </Item>
-                            <Button primary title="Sign In" onPress={this.login}/>
+                            <Button primary onPress={this.login}>
+                                <Text>Sign In</Text>
+                            </Button>
                         </Form>
-                    </Content>
-                </Container>
-            );
-        } else {
-            return (
-                <Container>
-                    <Content>
+                    :
                         <Form>
-                            <Button title="Sign Out" onPress={this.logout}/>
+                            <Button primary onPress={this.logout}>
+                                <Text>Sign Out</Text>
+                            </Button>
                         </Form>
-                    </Content>
-                </Container>
-            );
-        }
+                    }
+                </Content>
+            </Container>
+        );
     }
 
     _maybeRenderDevelopmentModeWarning() {
