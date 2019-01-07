@@ -51,6 +51,7 @@ const GradesStack = createStackNavigator({
 });
 
 GradesStack.navigationOptions = {
+    // TODO: figure out Grades header
     title: 'Grades',
     tabBarIcon: ({ tintColor }) => (
         <Icon name="school" style={{color: tintColor}}/>

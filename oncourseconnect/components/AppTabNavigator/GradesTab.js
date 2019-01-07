@@ -21,7 +21,10 @@ import {
     View,
     Body,
     Title
-} from 'native-base';
+} from 'native-base'
+
+import store from 'react-native-simple-store';
+
 import {WebBrowser} from 'expo';
 import DetailedGrades from "../DetailedGrades/DetailedGrades";
 
@@ -30,71 +33,33 @@ class GradesTab extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: '12248459',
+            username: '',
             schoolId: '',
             courses: [],
-            periodId: '35177',
+            periodId: '',
             yearId: '',
-            loggedIn: true,
+            signedIn: false,
             finishedLoading: false
         };
-        this.getSchoolInfo();
+        this.loadInfo();
     }
 
-    getSchoolInfo = () => {
-        if (!this.state.loggedIn) {
-            return;
-        }
-        console.log("Getting school and year id info...");
-        let url = `https://www.oncourseconnect.com/api/classroom/student/get_student_school_years?studentId=${this.state.username}`;
-        fetch(url, {
-            credentials: 'include'
-        }).then((response) => {
-            // console.log(response);
-            // console.log(response.url)
-            response.json().then( data => {
-                let info = data[0];
-                this.setState({
-                    schoolId: info.school_id,
-                    yearId: info.gb_school_year_id
-                });
-            }).then(() => this.getClassInfo());
-        }).catch((error) => {
-            console.error(error);
-        });
-    };
-
-    getClassInfo = () => {
-        console.log("Getting class and period id info...");
-        let url = `https://www.oncourseconnect.com/api/classroom/student/report_cards?schoolId=${this.state.schoolId}&schoolYearId=${this.state.yearId}&studentId=${this.state.username}`;
-        fetch(url, {
-            credentials: 'include'
-        }).then((response) => {
-            response.json().then( data => {
-                // console.log(data.report_cards[0].rows);
-                let courseInfo = data.report_cards[0].rows;
-                courseInfo.forEach( course => {
-                    let teacher = course[0].classStaff.length ? course[0].classStaff[0].staff_name : 'None';
-                    let courseObj = {
-                        name: course[0].class,
-                        teacher: teacher,
-                        id: course[1].gb_class_id
-                    };
-                    let currentCourses = this.state.courses;
-                    currentCourses.push(courseObj);
-                    // console.log(courseObj);
-                    this.setState({courses: currentCourses});
-                    if (this.state.periodId === '') {
-                        this.setState({periodId: course[1].period_id});
-                    }
-                });
-            }).catch( error => console.error(error));
-        }).then(() => {
-            this.setState({finishedLoading: true});
-            console.log('Done');
-        }).catch((error) => {
-            console.error(error);
-        });
+    loadInfo = () => {
+        store.get('signedIn')
+            .then((signedIn) => this.setState({signedIn: signedIn}))
+            .then(() => store.get('username'))
+            .then(username => this.setState({username: username}))
+            .then(() => store.get('schoolId'))
+            .then(schoolId => this.setState({schoolId: schoolId}))
+            .then(() => store.get('periodId'))
+            .then(periodId => this.setState({periodId: periodId}))
+            .then(() => store.get('yearId'))
+            .then((yearId) => this.setState({yearId: yearId}))
+            .then(() => store.get('courses'))
+            .then(courses => this.setState({courses: courses}))
+            .then(() => this.setState({finishedLoading: true}))
+            .then(() => console.log(this.state))
+            .catch(error => console.error(error.message));
     };
 
     renderListItem = (course) => {
@@ -125,22 +90,28 @@ class GradesTab extends Component {
 
 
     render() {
+        store.get('signedIn').then((signedIn) => this.setState({signedIn: signedIn}));
         // TODO: look into using Accordion with custom rendering to expand MP 1-4
         return (
             <Container>
                 <View style={styles.container}>
+
                     {/*<Header>*/}
                         {/*<Body>*/}
                             {/*<Title>Grades</Title>*/}
                         {/*</Body>*/}
                     {/*</Header>*/}
-                    {this.state.finishedLoading ?
+                    {!this.state.signedIn &&
+                        <Text>Please Sign In</Text>
+                    }
+                    {this.state.signedIn && this.state.finishedLoading &&
                         <FlatList
                             data={this.state.courses}
                             renderItem={({item}) => this.renderListItem(item)}
                             keyExtractor={(item) => item.id}
                         />
-                    :
+                    }
+                    {!this.state.finishedLoading &&
                         <Text>Loading...</Text>
                     }
                 </View>

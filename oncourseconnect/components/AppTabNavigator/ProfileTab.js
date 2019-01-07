@@ -24,6 +24,8 @@ import {
     Input,
 } from "native-base";
 
+import store from 'react-native-simple-store';
+
 class ProfileTab extends Component {
 
     static navigationOptions = {
@@ -36,6 +38,8 @@ class ProfileTab extends Component {
     state = {
         username: '',
         password: '',
+        schoolId: '',
+        yearId: '',
         signedIn: false
     };
 
@@ -47,24 +51,35 @@ class ProfileTab extends Component {
             Alert.alert('Error', 'Password cannot be blank', [{text: 'OK'}]);
             return;
         }
+        this.clearStorage();
         console.log("Attempting to sign in...");
-        console.log(this.state);
         let url = `https://www.oncourseconnect.com/sso/login?id=wayne&userType=S&username=${this.state.username}&password=${this.state.password}`;
 
+        //TODO: save auth cookie in storage and add to all request headers
         fetch(url, {
             method: 'POST',
             credentials: 'include',
         }).then((response) => {
             if (response.url === 'https://www.oncourseconnect.com/') {
-                this.setState({signedIn: !this.state.signedIn});
-                console.log("Sign in successful");
+                this.setState({signedIn: true});
+                store.push('users', this.state.username)
+                    .then(() => store.save('username', this.state.username))
+                    .then(username => {
+                        store.get('users').then(users => {
+                            if (!users.includes(username)) {
+                                this.getSchoolInfo();
+                            }
+                        });
+                    })
+                    .then(() => store.save('signedIn', true)
+                    .then(() => console.log("Sign in successful")))
+                    .catch(error => console.error(error.message));
             } else {
-                // console.log(response.text());
-                console.log("Sign in failed");
+                console.log(`Sign in failed: ${response.url}`);
                 Alert.alert('Sign in failed', 'Incorrect username/password', [{text: 'OK'}]);
             }
         }).catch((error) => {
-            console.error(error);
+            console.error(error.message);
         });
     };
 
@@ -77,12 +92,86 @@ class ProfileTab extends Component {
             this.setState({
                 username: '',
                 password: '',
-                signedIn: !this.state.signedIn
+                schoolId: '',
+                yearId: '',
+                signedIn: false
             });
-            console.log("Sign out successful")
+            this.clearStorage();
+            store.save('signedIn', false).then(() => console.log("Sign out successful"));
         }).catch((error) => {
-            console.error(error);
+            console.error(error.message);
         });
+    };
+
+    getSchoolInfo = () => {
+        if (!this.state.signedIn) {
+            return;
+        }
+        console.log("Getting school and year id info...");
+        let url = `https://www.oncourseconnect.com/api/classroom/student/get_student_school_years?studentId=${this.state.username}`;
+        fetch(url, {
+            credentials: 'include'
+        }).then((response) => {
+            // console.log(response);
+            response.json().then(data => {
+                let info = data[0];
+                store.save('schoolId', info.school_id)
+                    .then(() => store.save('yearId', info.gb_school_year_id))
+                    .then(() => {
+                        this.setState({schoolId: info.school_id});
+                        this.setState({yearId: info.gb_school_year_id});
+                    })
+                    .then(() => this.getClassInfo())
+                    .catch(error => console.error(error.message))
+            });
+        }).catch((error) => {
+            console.error(error.message);
+        });
+    };
+
+    getClassInfo = () => {
+        console.log("Getting class and period id info...");
+        let url = `https://www.oncourseconnect.com/api/classroom/student/report_cards?schoolId=${this.state.schoolId}&schoolYearId=${this.state.yearId}&studentId=${this.state.username}`;
+        console.log(url);
+        fetch(url, {
+            credentials: 'include'
+        }).then((response) => {
+            // console.log(response);
+            let courseArr = [];
+            response.json()
+                .then(data => {
+                // console.log(data.report_cards[0].rows);
+                let courseInfo = data.report_cards[0].rows;
+                courseInfo.forEach( course => {
+                    let teacher = course[0].classStaff.length ? course[0].classStaff[0].staff_name : 'None';
+                    let courseObj = {
+                        name: course[0].class,
+                        teacher: teacher,
+                        id: course[1].gb_class_id
+                    };
+                    // console.log(courseObj);
+                    courseArr.push(courseObj);
+                    store.save('periodId', course[1].period_id).catch(error => console.error(error));
+                });
+                })
+                .then(() => store.save('courses', courseArr))
+                .catch( error => console.error(error));
+        }).then(() => {
+            console.log('Done');
+        }).catch((error) => {
+            console.error(error.message);
+        });
+    };
+
+    clearStorage = () => {
+        console.log("Clearing storage...");
+        store.delete('users')
+            .then(() => store.delete('username'))
+            .then(() => store.delete('schoolId'))
+            .then(() => store.delete('yearId'))
+            .then(() => store.delete('periodId'))
+            .then(() => store.delete('courses'))
+            .catch(error => console.error(error.message));
     };
 
     render() {
