@@ -55,7 +55,7 @@ class ProfileTab extends Component {
         console.log("Attempting to sign in...");
         let url = `https://www.oncourseconnect.com/sso/login?id=wayne&userType=S&username=${this.state.username}&password=${this.state.password}`;
 
-        //TODO: save auth cookie in storage and add to all request headers
+        // TODO: save auth cookie in storage and add to all request headers
         fetch(url, {
             method: 'POST',
             credentials: 'include',
