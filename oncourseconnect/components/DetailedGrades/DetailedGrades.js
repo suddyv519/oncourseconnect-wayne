@@ -7,12 +7,14 @@ import {
     Text,
     TouchableOpacity,
     View,
-    Button,
     TextInput
 } from 'react-native';
 import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
-import {Icon} from "native-base";
+import {
+    Icon,
+    Button
+} from "native-base";
 
 class DetailedGrades extends Component {
 
@@ -23,9 +25,14 @@ class DetailedGrades extends Component {
             courseId: navigation.getParam('courseId', 'none'),
             courseName: navigation.getParam('courseName', 'Grades'),
             periodId: navigation.getParam('periodId', 'none'),
-            username: navigation.getParam('username', 'none')
+            username: navigation.getParam('username', 'none'),
+            markingPeriod: '',
+            categories: [],
+            average: '',
+            letter: '',
+            finishedLoading: false
         };
-        console.log(this.state);
+        this.getGrades(1);
     }
 
     static navigationOptions = {
@@ -35,27 +42,63 @@ class DetailedGrades extends Component {
         )
     };
 
+
+
     getGrades = (mp) => {
-        console.log("getting grades...");
+        console.log("Getting grades...");
         let periodId = parseInt(this.state.periodId) + mp - 1;
         let url = `https://www.oncourseconnect.com/api/classroom/student/get_student_progress_report?classId=${this.state.courseId}&periodId=${periodId}&studentId=${this.state.username}`;
         fetch(url, {
             credentials: 'include'
         }).then((response) => {
             response.json().then( data => {
-                console.log(data);
-                return data.toString();
+                data = data.ReturnValue;
+                this.setState({
+                    average: data.calculated_grade,
+                    letter: data.calculated_grade_scale,
+                    markingPeriod: data.term_name
+                });
+                let formattedCategories = [];
+                let categories = data.categories;
+                categories.forEach(category => {
+                    console.log('true');
+                    let assignments = category.category_assignments;
+                    let formattedAssignments = [];
+                    assignments.forEach((assignment, index, assignments) => {
+                        if (index < assignments.length - 1) {
+                            formattedAssignments.push({
+                                name: assignment.assignment_name,
+                                point_grade: assignment.print_grade,        // 80/100
+                                percent_grade: assignment.numerical_score   // 80%
+                            });
+                        }
+                    });
+                    let formattedCategory = {
+                        name: category.category_name,
+                        assignments: formattedAssignments,
+                    };
+                    formattedCategories.push(formattedCategory);
+                });
+                this.setState({categories: formattedCategories})
             }).catch( error => console.error(error));
-        }).catch((error) => {
-            console.error(error);
+        }).then(() => {
+            this.setState({finishedLoading: true});
+            console.log('Done');
+        }).catch(error => {console.error(error);
         });
     };
 
     render() {
-        this.getGrades(2);
         return (
             <View style={styles.container}>
                 <Text>{this.state.courseName}</Text>
+                {this.state.finishedLoading ?
+                    <Button onPress={() => console.log(this.state)}>
+                        <Text>State</Text>
+                    </Button>
+                :
+                    <Text>Loading grades...</Text>
+                }
             </View>
         );
     }

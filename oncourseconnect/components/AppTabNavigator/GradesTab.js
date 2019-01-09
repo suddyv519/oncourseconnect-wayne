@@ -58,7 +58,7 @@ class GradesTab extends Component {
             .then(() => store.get('courses'))
             .then(courses => this.setState({courses: courses}))
             .then(() => this.setState({finishedLoading: true}))
-            .then(() => console.log(this.state))
+            // .then(() => console.log(this.state))
             .catch(error => console.error(error.message));
     };
 
