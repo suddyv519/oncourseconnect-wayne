@@ -4,15 +4,18 @@ import {
     Platform,
     ScrollView,
     StyleSheet,
-    Text,
     TouchableOpacity,
-    View,
-    Button,
     TextInput
 } from 'react-native';
 import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
-import {Icon} from "native-base";
+import {
+    Icon,
+    View,
+    Text,
+    Container,
+    Button
+} from "native-base";
 
 import store from 'react-native-simple-store';
 
@@ -25,9 +28,13 @@ class AttendanceTab extends Component {
             username: '',
             schoolId: '',
             yearId: '',
+            schoolYear: '',
+            daysAbsent: 0,
+            daysPresent: 0,
+            daysTardy: 0,
+            signedIn: false,
             finishedLoading: false
         };
-
         this.loadState();
     }
 
@@ -39,18 +46,58 @@ class AttendanceTab extends Component {
     };
 
     loadState = () => {
-
+        console.log('Getting store data...');
+        store.get('signedIn')
+            .then((signedIn) => this.setState({signedIn: signedIn}))
+            .then(() => store.get('username'))
+            .then(username => this.setState({username: username}))
+            .then(() => store.get('schoolId'))
+            .then(schoolId => this.setState({schoolId: schoolId}))
+            .then(() => store.get('yearId'))
+            .then((yearId) => this.setState({yearId: yearId}))
+            .then(() => this.getAttendance())
+            .then(() => console.log('Done'))
+            .catch(error => console.error(error.message));
     };
 
     getAttendance = () => {
-        let url = `https://www.oncourseconnect.com/api/classroom/student/attendance_summary?schoolID=22933&schoolYearID=14828&studentID=12248459`
+        console.log('Getting attendance data...');
+        let url = `https://www.oncourseconnect.com/api/classroom/student/attendance_summary?schoolID=${this.state.schoolId}&schoolYearID=${this.state.yearId}&studentID=${this.state.username}`;
+        fetch(url, {
+            method: 'POST',
+            credentials: 'include'
+        }).then(response => {
+            response.json().then(attendanceData => {
+                attendanceData = attendanceData.ReturnValue.overall;
+                console.log(attendanceData);
+                this.setState({
+                    schoolYear: attendanceData.school_year,
+                    daysAbsent: parseInt(attendanceData.Absent),
+                    daysPresent: parseInt(attendanceData.Present),
+                    daysTardy: parseInt(attendanceData.Tardy)
+                });
+            });
+        })
+        .then(() => {
+            this.setState({finishedLoading: true});
+            console.log('Done');
+        }).catch(error => console.error(error));
     };
 
     render() {
         return (
-            <View style={styles.container}>
-                <Text>Attendance Tab</Text>
-            </View>
+            <Container>
+                <View style={styles.container}>
+                    <Text>{this.state.courseName}</Text>
+                    {this.state.finishedLoading ?
+                        <Button onPress={() => console.log(this.state)}>
+                            <Text>State</Text>
+                        </Button>
+                        :
+                        <Text>Loading attendance...</Text>
+                    }
+                </View>
+            </Container>
         );
     }
 

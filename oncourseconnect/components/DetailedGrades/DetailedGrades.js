@@ -4,16 +4,17 @@ import {
     Platform,
     ScrollView,
     StyleSheet,
-    Text,
     TouchableOpacity,
-    View,
     TextInput
 } from 'react-native';
 import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
 import {
     Icon,
-    Button
+    Button,
+    View,
+    Container,
+    Text
 } from "native-base";
 
 class DetailedGrades extends Component {
@@ -90,16 +91,18 @@ class DetailedGrades extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
-                <Text>{this.state.courseName}</Text>
-                {this.state.finishedLoading ?
-                    <Button onPress={() => console.log(this.state)}>
-                        <Text>State</Text>
-                    </Button>
-                    :
-                    <Text>Loading grades...</Text>
-                }
-            </View>
+            <Container>
+                <View style={styles.container}>
+                    <Text>{this.state.courseName}</Text>
+                    {this.state.finishedLoading ?
+                        <Button onPress={() => console.log(this.state)}>
+                            <Text>State</Text>
+                        </Button>
+                        :
+                        <Text>Loading grades...</Text>
+                    }
+                </View>
+            </Container>
         );
     }
 
