@@ -20,7 +20,7 @@ class DetailedGrades extends Component {
 
     constructor(props) {
         super(props);
-        const { navigation } = this.props;
+        const {navigation} = this.props;
         this.state = {
             courseId: navigation.getParam('courseId', 'none'),
             courseName: navigation.getParam('courseName', 'Grades'),
@@ -37,11 +37,10 @@ class DetailedGrades extends Component {
 
     static navigationOptions = {
         title: 'View Grades',
-        tabBarIcon: ({ tintColor }) => (
+        tabBarIcon: ({tintColor}) => (
             <Icon name="checkbox" style={{color: tintColor}}/>
         )
     };
-
 
 
     getGrades = (mp) => {
@@ -51,7 +50,7 @@ class DetailedGrades extends Component {
         fetch(url, {
             credentials: 'include'
         }).then((response) => {
-            response.json().then( data => {
+            response.json().then(data => {
                 data = data.ReturnValue;
                 this.setState({
                     average: data.calculated_grade,
@@ -80,11 +79,12 @@ class DetailedGrades extends Component {
                     formattedCategories.push(formattedCategory);
                 });
                 this.setState({categories: formattedCategories})
-            }).catch( error => console.error(error));
+            }).catch(error => console.error(error));
         }).then(() => {
             this.setState({finishedLoading: true});
             console.log('Done');
-        }).catch(error => {console.error(error);
+        }).catch(error => {
+            console.error(error);
         });
     };
 
@@ -96,7 +96,7 @@ class DetailedGrades extends Component {
                     <Button onPress={() => console.log(this.state)}>
                         <Text>State</Text>
                     </Button>
-                :
+                    :
                     <Text>Loading grades...</Text>
                 }
             </View>

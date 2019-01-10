@@ -16,11 +16,29 @@ import {Icon} from "native-base";
 
 class AttendanceTab extends Component {
 
+    constructor(props) {
+        super(props);
+        const {navigation} = this.props;
+        this.state = {
+            username: '',
+            schoolId: '',
+            yearId: '',
+            finishedLoading: false
+        };
+        this.getInfo();
+    }
+
+    //https://www.oncourseconnect.com/api/classroom/student/attendance_summary?schoolID=22933&schoolYearID=14828&studentID=12248459
+
     static navigationOptions = {
         title: 'Attendance',
-        tabBarIcon: ({ tintColor }) => (
+        tabBarIcon: ({tintColor}) => (
             <Icon name="checkbox" style={{color: tintColor}}/>
         )
+    };
+
+    getInfo = () => {
+
     };
 
     render() {
