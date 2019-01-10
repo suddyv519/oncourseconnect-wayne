@@ -41,10 +41,10 @@ class GradesTab extends Component {
             signedIn: false,
             finishedLoading: false
         };
-        this.loadInfo();
+        this.loadState();
     }
 
-    loadInfo = () => {
+    loadState = () => {
         store.get('signedIn')
             .then((signedIn) => this.setState({signedIn: signedIn}))
             .then(() => store.get('username'))

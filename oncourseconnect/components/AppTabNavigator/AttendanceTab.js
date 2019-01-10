@@ -14,6 +14,8 @@ import {WebBrowser} from 'expo';
 import TabBarIcon from "../TabBarIcon";
 import {Icon} from "native-base";
 
+import store from 'react-native-simple-store';
+
 class AttendanceTab extends Component {
 
     constructor(props) {
@@ -25,10 +27,9 @@ class AttendanceTab extends Component {
             yearId: '',
             finishedLoading: false
         };
-        this.getInfo();
-    }
 
-    //https://www.oncourseconnect.com/api/classroom/student/attendance_summary?schoolID=22933&schoolYearID=14828&studentID=12248459
+        this.loadState();
+    }
 
     static navigationOptions = {
         title: 'Attendance',
@@ -37,8 +38,12 @@ class AttendanceTab extends Component {
         )
     };
 
-    getInfo = () => {
+    loadState = () => {
 
+    };
+
+    getAttendance = () => {
+        let url = `https://www.oncourseconnect.com/api/classroom/student/attendance_summary?schoolID=22933&schoolYearID=14828&studentID=12248459`
     };
 
     render() {
